@@ -38,7 +38,7 @@ public class TensorFlowImageClassifier implements Classifier {
 
     private boolean runStats = false;
 
-    public TensorFlowImageClassifier() {
+    private TensorFlowImageClassifier() {
     }
 
     public static Classifier create(
@@ -56,7 +56,7 @@ public class TensorFlowImageClassifier implements Classifier {
         c.outputName = outputName;
 
         //Read the labels into memory
-        String actualFileName = labelFileName.split("file:///andriod_assert/")[1];
+        String actualFileName = labelFileName.split("file:///android_asset/")[1];
         BufferedReader br = null;
         br = new BufferedReader(new InputStreamReader(assetManager.open(actualFileName)));
         String line;
@@ -76,7 +76,7 @@ public class TensorFlowImageClassifier implements Classifier {
         c.imageMean = imageMean;
         c.imageStd = imageStd;
 
-        //pre allocated Buffers
+        // Pre-allocate buffers.
         c.outputNames = new String[]{outputName};
         c.intValues = new int[inputSize * inputSize];
         c.floatValues = new float[inputSize * inputSize * 3];
@@ -87,11 +87,12 @@ public class TensorFlowImageClassifier implements Classifier {
 
 
     @Override
-    public List<Recognition> recognizeBitMap(Bitmap bitmap) {
+    public List<Recognition> recognizeImage(final Bitmap bitmap) {
+        // Log this method so that it can be analyzed with systrace.
 
         bitmap.getPixels(intValues, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
 
-        for (int i = 0; i < intValues.length; i++) {
+        for (int i = 0; i < intValues.length; ++i) {
             final int val = intValues[i];
             floatValues[i * 3 + 0] = (((val >> 16) & 0xFF) - imageMean) / imageStd;
             floatValues[i * 3 + 1] = (((val >> 8) & 0xFF) - imageMean) / imageStd;
